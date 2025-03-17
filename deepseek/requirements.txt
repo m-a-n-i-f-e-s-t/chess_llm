@@ -1,0 +1,4 @@
+torch
+triton
+transformers==4.49.0
+safetensors

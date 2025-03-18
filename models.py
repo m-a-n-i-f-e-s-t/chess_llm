@@ -25,6 +25,7 @@ from safetensors.torch import load_file, load_model
 from utils import timing, rank_print, DistributedInfo, print_cuda_memory_usage
 
 microbatch_start = 0
+GS_BUCKET = os.environ.get("GS_BUCKET_CHECKPOINT")
 TS_MAPPING = {
     "embed": 0,
     "attn_norm": None,
@@ -169,7 +170,7 @@ def setup_pp(model: torch.nn.Module,
         creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
         auth_flag = f"-o 'Credentials:gs_service_key_file={creds_path}'" if creds_path else ""
         checkpoint_name = f"model-pp{di.pp_size}-tp{di.tp_size}-pp_rank-{di.pp_rank}-tp_rank-{di.tp_rank}{'-redo' if di.pp_rank == 29 else ''}.safetensors"
-        bucket_path = f"gs://manifestai-chessr1-checkpoints/deepseek-r1-original/bf16/pp{di.pp_size}tp{di.tp_size}/{checkpoint_name}"
+        bucket_path = f"{GS_BUCKET}/deepseek-r1-original/bf16/pp{di.pp_size}tp{di.tp_size}/{checkpoint_name}"
 
         # check if the checkpoint exists
         ls_cmd = f"gsutil -q {auth_flag} ls {bucket_path}"
